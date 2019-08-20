@@ -1,11 +1,3 @@
-//
-//  GrowingTextView.swift
-//  Pods
-//
-//  Created by Kenneth Tsang on 17/2/2016.
-//  Copyright (c) 2016 Kenneth Tsang. All rights reserved.
-//
-
 import Foundation
 import UIKit
 
@@ -26,6 +18,9 @@ open class GrowingTextView: UITextView {
     // Trim white space and newline characters when end editing. Default is true
     @IBInspectable open var trimWhiteSpaceWhenEndEditing: Bool = true
     
+    //Line Color
+    @IBInspectable open var lineColor: UIColor = UIColor.black
+    
     // Customization
     @IBInspectable open var minHeight: CGFloat = 0 {
         didSet { forceLayoutSubviews() }
@@ -41,6 +36,16 @@ open class GrowingTextView: UITextView {
     }
     @IBInspectable open var attributedPlaceholder: NSAttributedString? {
         didSet { setNeedsDisplay() }
+    }
+    
+    var lineHeight: CGFloat = 13.8
+    
+    override open var font: UIFont? {
+        didSet {
+            if let newFont = font {
+                lineHeight = newFont.lineHeight
+            }
+        }
     }
     
     // Initialize
@@ -164,6 +169,30 @@ open class GrowingTextView: UITextView {
                 placeholder.draw(in: placeholderRect, withAttributes: attributes)
             }
         }
+        
+        let ctx = UIGraphicsGetCurrentContext()
+        ctx?.setStrokeColor(lineColor.cgColor)
+        let numberOfLines = Int(rect.height / (lineHeight * 2.0))
+        let topInset = textContainerInset.top + 3
+        
+        let tempY = topInset + 3
+        let templine = CGMutablePath()
+        templine.move(to: CGPoint(x: 0.0, y: tempY))
+        templine.addLine(to: CGPoint(x: rect.width, y: tempY))
+        ctx?.addPath(templine)
+        
+        for i in 1...numberOfLines-1 {
+            let y = topInset + (CGFloat(i) * lineHeight * 2.0) + 8
+            
+            let line = CGMutablePath()
+            line.move(to: CGPoint(x: 0.0, y: y))
+            line.addLine(to: CGPoint(x: rect.width, y: y))
+            ctx?.addPath(line)
+        }
+        
+        ctx?.strokePath()
+        super.draw(rect)
+        
     }
     
     // Trim white space and new line characters when end editing.
