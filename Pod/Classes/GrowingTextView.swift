@@ -217,4 +217,17 @@ open class GrowingTextView: UITextView {
             setNeedsDisplay()
         }
     }
+    
+    
+    override open func caretRect(for position: UITextPosition) -> CGRect {
+        var superRect = super.caretRect(for: position)
+        guard let font = self.font else { return superRect }
+        
+        // "descender" is expressed as a negative value,
+        // so to add its height you must subtract its value
+        let oldCursorHeight = superRect.size.height
+        superRect.size.height = font.pointSize - font.descender
+        superRect.origin.y = superRect.origin.y + (oldCursorHeight-superRect.size.height)
+        return superRect
+    }
 }
